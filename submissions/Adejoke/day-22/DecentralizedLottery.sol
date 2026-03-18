@@ -30,6 +30,12 @@ abstract contract VRFConsumerBaseV2Plus {
 }
 
 contract DecentralizedLottery is VRFConsumerBaseV2Plus {
+    address public owner;
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
     enum LOTTERY_STATE { OPEN, CLOSED, CALCULATING }
     LOTTERY_STATE public lotteryState;
     address payable[] public players;
@@ -39,6 +45,7 @@ contract DecentralizedLottery is VRFConsumerBaseV2Plus {
     bytes32 public keyHash;
 
     constructor(address vrfCoordinator, uint256 _subscriptionId, bytes32 _keyHash, uint256 _entryFee) VRFConsumerBaseV2Plus(vrfCoordinator) {
+        owner = msg.sender;
         subscriptionId = _subscriptionId;
         keyHash = _keyHash;
         entryFee = _entryFee;

@@ -2,10 +2,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
-import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+library VRFV2PlusClient {
+    struct RandomWordsRequest {
+        bytes32 keyHash;
+        uint256 subId;
+        uint16 requestConfirmations;
+        uint32 callbackGasLimit;
+        uint32 numWords;
+        bytes extraArgs;
+    }
+    struct ExtraArgsV1 { bool nativePayment; }
+    function _argsToBytes(ExtraArgsV1 memory args) internal pure returns (bytes memory) {
+        return abi.encode(args.nativePayment);
+    }
+}
 
-// Note: Ensure your project imports the appropriate chainlink interfaces.
+interface IVRFCoordinatorV2Plus {
+    function requestRandomWords(VRFV2PlusClient.RandomWordsRequest calldata req) external returns (uint256 requestId);
+}
+
+abstract contract VRFConsumerBaseV2Plus {
+    IVRFCoordinatorV2Plus public s_vrfCoordinator;
+    constructor(address vrfCoordinator) {
+        s_vrfCoordinator = IVRFCoordinatorV2Plus(vrfCoordinator);
+    }
+    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal virtual;
+}
+
 contract DecentralizedLottery is VRFConsumerBaseV2Plus {
     enum LOTTERY_STATE { OPEN, CLOSED, CALCULATING }
     LOTTERY_STATE public lotteryState;

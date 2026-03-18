@@ -90,7 +90,8 @@ contract CropInsurance {
             isInsured[msg.sender] = false; 
             
             require(address(this).balance >= INSURANCE_PAYOUT, "Insufficient pool balance to cover claim");
-            payable(msg.sender).transfer(INSURANCE_PAYOUT);
+            (bool success, ) = msg.sender.call{value: INSURANCE_PAYOUT}("");
+            require(success, "Payout transfer failed");
             
         } else {
             revert("Rainfall is above threshold, no payout");

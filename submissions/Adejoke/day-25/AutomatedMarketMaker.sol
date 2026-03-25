@@ -33,7 +33,7 @@ contract ERC20 is IERC20 {
         return _symbol;
     }
 
-    function decimals() public view virtual returns (uint8) {
+    function decimals() public pure virtual returns (uint8) {
         return 18;
     }
 

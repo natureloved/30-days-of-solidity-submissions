@@ -30,7 +30,8 @@ contract LendingPool {
         require(currentDebt + amount <= maxBorrow, "Exceeds limit");
         borrowBalances[msg.sender] = currentDebt + amount;
         lastInterestAccrualTimestamp[msg.sender] = block.timestamp;
-        payable(msg.sender).transfer(amount);
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transfer failed");
     }
 
     function repay() external payable {
